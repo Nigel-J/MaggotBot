@@ -2,4 +2,4 @@
 
 All code for robot maggot
 
-note: Robot.py is in Adafruit_Motor_Hat directory
+note: Robot.py is in Adafruit-Motor-HAT-Python directory
