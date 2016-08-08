@@ -13,6 +13,11 @@ import random
 import math
 import Robot
 
+LEFT_TRIM=0
+RIGHT_TRIM=5
+
+robot=Robot.Robot(left_trim=LEFT_TRIM, right_trim=RIGHT_TRIM)
+
 class Adafruit_TSL2651(Adafruit_I2C):
     TSL2561_VISIBLE           =2       # channel 0 - channel 1
     TSL2561_INFRARED          =1       # channel 1
