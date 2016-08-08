@@ -1,3 +1,6 @@
+lasttime=0
+thistime=0
+
 while True:
         thistime=LightSensor.calculateLux()
         print thistime - lasttime, "Lux"
