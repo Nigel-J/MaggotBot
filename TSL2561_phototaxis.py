@@ -5,7 +5,6 @@
 # This library is heavily based on the Arduino library for the TSL2561 digital luminosity (light) sensors.
 # It is basically a simple translation from C++ to Python.
 # Source for the Arduino library: https://github.com/adafruit/TSL2561-Arduino-Library
-# Adafruit form thread:http://forums.adafruit.com/viewtopic.php?f=8&t=34922&sid=8336d566f2f03c25882aaf34c8a15a92
 
 import time
 import Robot
