@@ -11,6 +11,10 @@ while True:
         pt=1/(1+math.exp(-1*(-1*(float(delta)/5)-0.5)))
         print pt
         r = random.random()
+# cap        if pt>0.9:
+#                pt=0.9
+# cap        if pt<0.1:
+#                pt=0.1
         if r<pt:
                 robot.left(172, random.random())
                 print "Turn;"+'\n'
