@@ -30,11 +30,13 @@ while True:
                 #life is good, keep going
                 print "Continue run" + '\n'
                 robot.backward(150,0.2)
+                lasttime = thistime
                 
         else:
                 #life is not improving, time for head sweeps
                 print "Turn" + '\n'
                 
+                lasttime = thistime
                 t = random.random()
                 if t>0.5:
                         #sweep left
@@ -75,5 +77,5 @@ while True:
                                 print "Rejected;" + '\n'
                                 robot.left(172, 0.25)
                 
-        lasttime = thistime;
+        lasttime = thistime
 
