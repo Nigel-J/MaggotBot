@@ -3,7 +3,7 @@
 import time
 import Robot
 import numpy as np
-import initTSL2561
+from Adafruit_TSL2651 import *
 
 LEFT_TRIM=0
 RIGHT_TRIM=0
@@ -18,44 +18,44 @@ def calcprob(lastlux, offset):
 
 def newrun(rang, lastlux):
 	#begin with short run
-	robot.backward(100, numpy.random.uniform(rang[0],rang[1])
+	robot.forward(100, np.random.uniform(rang[0],rang[1]))
 	#judge if life is improving
 	thislux, pt = calcprob(lastlux, 0.5)
-	print "P-turn is" pt
+	print("P-turn is")
 	r = np.random.rand() 
 	if r>pt:
 		#life is good, try small turns
-		print "Small turns" + '\n'
+		print("Small turns")
 		t = np.random.rand()
 		if t>0.5:
-    		#sweep left
-    		headsweep(robot.left, (0.1,0.25), thislux)
-    	else:
-    		#sweep right
-			headsweep(robot.left, (0.1,0.25), thislux)
+    			#sweep left
+    			headsweep(robot.left, (0.2,0.3), thislux)
+    		else:
+    			#sweep right
+			headsweep(robot.left, (0.2,0.3), thislux)
 	else:
 		#life is bad, do big sweeps
-		print "Big turns" + '\n'
+		print("Big turns")
 		t = np.random.rand()
 		if t>0.5:
-    		#sweep left
-    		headsweep(robot.left, (0.25,0.4), thislux)
-    	else:
-    		#sweep right
-			headsweep(robot.left, (0.25,0.4), thislux)
+    			#sweep left
+    			headsweep(robot.left, (0.3,0.5), thislux)
+    		else:
+    			#sweep right
+			headsweep(robot.left, (0.3,0.5), thislux)
 
 def headsweep(dir, rang, lastlux):
 	#initial sweep
 	dir(150, np.random.uniform(rang[0],rang[1]))
 	#take reading
-    thislux, pa = calcprob(lastlux, 0.85)
+	thislux, pa = calcprob(lastlux, 0.85)
 	w = np.random.rand()
 	if w<pa:
 		#Accepted head sweep
-		print "Accepted;" + '\n'
-		newrun(rang, thislux)
+		print("Accepted;")
+		newrun([0.5,1.0], thislux)
 	else: 
-		print "Rejected;" + '\n'
+		print("Rejected;")
 		if dir == robot.left:
 			headsweep(robot.right, rang, lastlux)
 		else:
@@ -63,6 +63,6 @@ def headsweep(dir, rang, lastlux):
 			
 try:
 	while True:
-		newrun([0,1.0], LightSensor.calculateLux())
+		newrun([0.5,1.0], LightSensor.calculateLux())
 except KeyboardInterrupt:
 	print('seeya')
