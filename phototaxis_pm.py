@@ -29,20 +29,20 @@ def newrun(rang, lastlux):
 		t = np.random.rand()
 		if t>0.5:
     		#sweep left
-    		headsweep(robot.left, (0.0,0.1), thislux)
+    		headsweep(robot.left, (0.1,0.25), thislux)
     	else:
     		#sweep right
-			headsweep(robot.left, (0.0,0.1), thislux)
+			headsweep(robot.left, (0.1,0.25), thislux)
 	else:
 		#life is bad, do big sweeps
 		print "Big turns" + '\n'
 		t = np.random.rand()
 		if t>0.5:
     		#sweep left
-    		headsweep(robot.left, (0.1,0.25), thislux)
+    		headsweep(robot.left, (0.25,0.4), thislux)
     	else:
     		#sweep right
-			headsweep(robot.left, (0.1,0.25), thislux)
+			headsweep(robot.left, (0.25,0.4), thislux)
 
 def headsweep(dir, rang, lastlux):
 	#initial sweep
@@ -60,3 +60,9 @@ def headsweep(dir, rang, lastlux):
 			headsweep(robot.right, rang, lastlux)
 		else:
 			headsweep(robot.left, rang, lastlux)
+			
+try:
+	while True:
+		newrun([0,1.0], LightSensor.calculateLux())
+except KeyboardInterrupt:
+	print('seeya')
