@@ -32,7 +32,6 @@ while True:
                 #life is good, keep going
                 print "Continue run" + '\n'
                 robot.backward(150,0.2)
-                lasttime = thistime
                 
         else:
                 #life is not improving, time for head sweeps
