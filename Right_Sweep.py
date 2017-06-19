@@ -18,4 +18,5 @@ if w<pa:
 else: 
   print "Rejected;" + '\n'
   robot.left(172, 0.25)
+  lasttime = thistime
   os.system("Left_Sweep.py")
