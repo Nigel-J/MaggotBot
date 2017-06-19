@@ -6,7 +6,7 @@ thistime = LightSensor.calculateLux()
 #probability of accepting
 delta = (thistime-lasttime)
 print delta "Lux;" + '\n'
-pa = 1/(1+math.exp(-1*(float(delta)/5)-0.85)))
+pa = 1/(1+math.exp(-1*(float(delta)/5)-0.85))
 print "P-accept is" + pa  + '\n'
 w = random.random()
 
