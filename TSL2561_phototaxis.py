@@ -25,7 +25,7 @@ while True:
         thistime = LightSensor.calculateLux()
         delta=(thistime-lasttime)
         pt=1/(1+math.exp(-1*(-1*(float(delta)/5)-0.5)))
-        print "P-turn is" pt
+        print "P-turn is" + pt + '\n'
         r = random.random()   
         
         if r>pt:
