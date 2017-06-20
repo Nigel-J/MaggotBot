@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-robot.left(172, 0.25
+robot.left(172, 0.25)
 #take reading
 thistime = LightSensor.calculateLux()
 #probability of accepting
