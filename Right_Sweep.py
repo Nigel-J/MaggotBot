@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+import math
+import random
+import Robot
+
+
 robot.right(172, 0.25)
 #take reading
 thistime = LightSensor.calculateLux()
