@@ -17,6 +17,7 @@ lasttime = 0
 while True:
 
         #begin with short run
+        lasttime = LightSensor.calculateLux()
         robot.forward(150,0.2)
         
         #judge if life is improving
