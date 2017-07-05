@@ -8,12 +8,7 @@ import numpy as np
 import argparse
 import imutils
 import cv2
-import paramiko
 import time
- 
-ssh = paramiko.SSHClient()
-ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-ssh.connect('172.24.1.1', username='pi', password='raspberry')
 
 def get_center(cnts):
 	# find the largest contour in the mask, then use
@@ -52,7 +47,6 @@ def get_dir(objcenter, bndcenter):
 
 try:
 	# main loop goes for duration of experiment time
-	stdin, stdout, stderr = ssh.exec_command("sudo python test/threading_test.py")
 	while True:
 
 		move = 1
@@ -86,6 +80,9 @@ try:
 			camera = cv2.VideoCapture(args["video"])
 	
 		pts.clear()
+		print("tell robot to start")
+		#pts.appendleft(objcenter)
+		#stdin, stdout, stderr = ssh.exec_command("sudo python3 test/threading_test.py")
 	
 		# run loop
 		while True:
@@ -127,9 +124,7 @@ try:
 		
 			if move == 1:
 				# tell robot to go
-				print("Tell robot to start")
-				stdin.write('"go"\n')
-				stdin.flush()
+				print("Start!")
 				move = 2
 				
 			if move == 2:
@@ -142,8 +137,6 @@ try:
 					pts.appendleft(objcenter)
 					if r > bndradius:
 						print("Object Outside!")
-						stdin.write('"out"\n')
-						stdin.flush()
 						move = 3
 			
 			if move == 3:
@@ -155,34 +148,27 @@ try:
 					thisdir = get_dir(objcenter, bndcenter)
 					if r < 20.0:
 						print(str(r) + " winner!")
-						stdin.write('"go"\n')
-						stdin.flush()
 						break
 					else:
 						if lastdir != thisdir:
-		 					if thisdir == 'right down': 
-			 					stdin.write('"right"\n')
-			 					stdin.flush()
-			 				elif thisdir == 'right up': 
-			 					stdin.write('"right"\n')
-			 					stdin.flush()
-			 				elif thisdir == 'left down': 
-			 					stdin.write('"left"\n')
-			 					stdin.flush()
-			 				elif thisdir == 'left up': 
-			 					stdin.write('"left"\n')
-			 					stdin.flush()
-					thisdir = lastdir
+							if thisdir == 'right down':
+								print(thisdir)
+							elif thisdir == 'right up':
+								print(thisdir)
+							elif thisdir == 'left down':
+								print(thisdir)
+							elif thisdir == 'left up':
+								print(thisdir)
+					lastdir = thisdir
 	
 			# show the frame to our screen
 			cv2.imshow("Frame", frame)
 			key = cv2.waitKey(1) & 0xFF
 
 except KeyboardInterrupt:
-	stdin.write('"quit"\n')
-	stdin.flush()	
+			
 	
 
-# cleanup the camera and close any open windows
-camera.release()
-cv2.destroyAllWindows()
+	# cleanup the camera and close any open windows
+	camera.release()
+	cv2.destroyAllWindows()
