@@ -12,6 +12,8 @@ RIGHT_TRIM=0
 robot=Robot.Robot(left_trim=LEFT_TRIM, right_trim=RIGHT_TRIM)
 
 lasttime = LightSensor.calculateLux()
+
+print "Left sweep"
 robot.left(70,0.7)
 #take reading
 thistime = LightSensor.calculateLux()
@@ -24,13 +26,26 @@ w = random.random()
 
 if w<pa:
         #Accepted left head sweep
+        #Flash light
+        GPIO.output(27,GPIO.HIGH)
+        time.sleep(0.2)
+        GPIO.output(27,GPIO.LOW)
+        print "Accepted"
+        print "Turncount =", turncount
+        print '\n'
         robot.forward(150,0.2)
-        print "Accepted;" + '\n'
 
 else:
-        print "Rejected; sweep right instead" + '\n'
         robot.right(70, 0.7)
         lasttime = thistime
-        execfile("Right_Sweep.py")
-
-  
+        if turncount >=10:
+                print "Turncount =", turncount
+                print "Too many sweeps; start new run" + '\n'
+                GPIO.output(26,GPIO.HIGH)
+                time.sleep(0.2)
+                GPIO.output(26,GPIO.LOW)
+                robot.forward(150,0.2)
+        else:
+                print "Rejected; sweep right instead" + '\n'
+                turncount+=1
+                execfile("Right_Sweep.py")
