@@ -45,7 +45,6 @@ else:
                 time.sleep(0.2)
                 GPIO.output(26,GPIO.LOW)
                 robot.forward(150,0.2)
-
         else:
                 print "Rejected; sweep left instead" + '\n'
                 turncount+=1
