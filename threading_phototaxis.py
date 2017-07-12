@@ -28,9 +28,18 @@ class listenerThread(threading.Thread):
                 self.name = name
                 self.q = q
         def run(self):
-                print("Starting " + self.name)
-                get_input(self.name, self.q)
-                print("Exiting " + self.name)
+		try:
+	                print("Starting " + self.name)
+	                get_input(self.name, self.q)
+	                print("Exiting " + self.name)
+		except Exception as e:
+			print("Listener Broke")
+			print(e)
+			io.output(5, io.LOW)
+			io.output(20, io.LOW)
+			io.output(25, io.LOW)
+			io.output(27, io.LOW)
+			robot.stop()
 		
 def get_input(threadName, q):
         global start1
@@ -59,14 +68,23 @@ class myThread (threading.Thread):
                 self.name = name
                 self.q = q
         def run(self):
-                print("Starting " + self.name)
-                process_data(self.name, self.q)
-                print("Exiting " + self.name)
-		
+		try:
+	                print("Starting " + self.name)
+	                process_data(self.name, self.q)
+	                print("Exiting " + self.name)
+		except Exception as e:
+			print("Thread-1 broke")
+                        print(e)
+			io.output(5, io.LOW)
+                        io.output(20, io.LOW)
+                        io.output(25, io.LOW)
+                        io.output(27, io.LOW)
+                        robot.stop()
+
 def process_data(threadName, q):
         going = True
         move = 1
-        while going:
+	while going:
 		io.output(25, io.HIGH)
                 # not doing anything, waiting for initial instruction
                 while not start1 and not start2:
@@ -130,13 +148,14 @@ def process_data(threadName, q):
                                 queueLock.release()
                                 robot.forward(100, 0.5)
 
-def calcprob_run(lastlux, dt):
-	a = 0.4608
-	b = -2.64
+def calcprob_run(lastlux):
+	a = 0.02
+	b = -0.8
+	dt = 0.2
 	thislux = LightSensor.calculateLux()
 	delta = (thislux-lastlux)
-	lmbda = 60*np.exp(-1*a*delta + b)
-	p = lmbda*dt
+	lmbda = np.exp(-1*a*delta + b)
+	p = lmbda*dt*np.exp(-lmbda*dt)
 	return thislux, p
 
 def calcprob_sweep(lastlux, a, b):
@@ -148,10 +167,10 @@ def calcprob_sweep(lastlux, a, b):
 
 def newrun(rang, lastlux):
 	#begin with short run
-	dt = np.random.uniform(rang[0], rang[1]))
-	robot.forward(150, dt)
+	dt = 0.2
+	robot.forward(150, 0.2)
 	#judge how life is going improving
-	thislux, pt = calcprob_sweep(lastlux, -1, 0.5)
+	thislux, pt = calcprob_run(lastlux)
 	#print(thislux)
 	#print("P-turn is")
 	r = np.random.rand() 
@@ -214,9 +233,9 @@ def flashturn(dir):
 		io.output(20, io.LOW)
 
 queueLock = threading.Lock()
-workQueue = Queue.Queue(0)
+workQueue = Queue.Queue(0)	
 threads = []
-		
+			
 thread1 = myThread(1, "Thread-1", workQueue)
 thread1.start()
 threads.append(thread1)
