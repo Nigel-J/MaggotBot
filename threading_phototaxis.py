@@ -18,8 +18,8 @@ RIGHT_TRIM = 10
 
 robot = Robot.Robot(left_trim=LEFT_TRIM, right_trim=RIGHT_TRIM)
 
-start1 = False
-start2 = False
+phototaxis = False
+directing = False
 
 class listenerThread(threading.Thread):
         def __init__(self, threadID, name, q):
@@ -28,22 +28,22 @@ class listenerThread(threading.Thread):
                 self.name = name
                 self.q = q
         def run(self):
-		try:
-	                print("Starting " + self.name)
-	                get_input(self.name, self.q)
-	                print("Exiting " + self.name)
-		except Exception as e:
-			print("Listener Broke")
-			print(e)
-			io.output(5, io.LOW)
-			io.output(20, io.LOW)
-			io.output(25, io.LOW)
-			io.output(27, io.LOW)
-			robot.stop()
+			try:
+	    	    print("Starting " + self.name)
+	    	    get_input(self.name, self.q)
+	    	    print("Exiting " + self.name)
+			except Exception as e:
+				print("Listener Broke")
+				print(e)
+				io.output(5, io.LOW)
+				io.output(20, io.LOW)
+				io.output(25, io.LOW)
+				io.output(27, io.LOW)
+				robot.stop()
 		
 def get_input(threadName, q):
-        global start1
-        global start2
+        global phototaxis
+        global directing
         while True:
                 data = input("->")
                 queueLock.acquire()
@@ -51,102 +51,102 @@ def get_input(threadName, q):
                 queueLock.release()
                 #print("%s read in %s" % (threadName, data))
                 if (data == "go"):
-                        start1 = True
-                        start2 = False
+                        phototaxis = True
+                        directing = False
                 if (data == 'out'): 
-                        start1 = False
-                        start2 = True
+                        phototaxis = False
+                        directing = True
                 if (data == 'quit'):
-                        start1 = False
-                        start2 = False
+                        phototaxis = False
+                        directing = False
                         break
 
-class myThread (threading.Thread):
+class motionThread(threading.Thread):
         def __init__(self, threadID, name, q):
                 threading.Thread.__init__(self)
                 self.threadID = threadID
                 self.name = name
                 self.q = q
         def run(self):
-		try:
-	                print("Starting " + self.name)
-	                process_data(self.name, self.q)
-	                print("Exiting " + self.name)
-		except Exception as e:
-			print("Thread-1 broke")
-                        print(e)
-			io.output(5, io.LOW)
-                        io.output(20, io.LOW)
-                        io.output(25, io.LOW)
-                        io.output(27, io.LOW)
-                        robot.stop()
+			try:
+	            print("Starting " + self.name)
+	            process_input(self.name, self.q)
+	            print("Exiting " + self.name)
+			except Exception as e:
+				print("Motion broke")
+                print(e)
+				io.output(5, io.LOW)
+                io.output(20, io.LOW)
+                io.output(25, io.LOW)
+                io.output(27, io.LOW)
+                robot.stop()
 
-def process_data(threadName, q):
+def process_input(threadName, q):
         going = True
         move = 1
 	while going:
 		io.output(25, io.HIGH)
-                # not doing anything, waiting for initial instruction
-                while not start1 and not start2:
-                        queueLock.acquire()
-                        if not workQueue.empty():
-                                data = q.get()
-                                queueLock.release()
-                                if data == 'go':
-                                        break
-                                elif data == 'out':
-                                        photo = False
-                                        break
-                                elif data == 'quit':
-                                        going = False
-                                        photo = False
+        # not doing anything, waiting for initial instruction
+        while not phototaxis and not directing:
+            queueLock.acquire()
+            if not workQueue.empty():
+                data = q.get()
+                queueLock.release()
+                if data == 'go':
+                    break
+                elif data == 'out':
+                    photo = False
+                    break
+                elif data == 'quit':
+                    going = False
+                    photo = False
 					io.output(25, io.LOW)
-                                        break
-                        else:
-                                queueLock.release()
-                                time.sleep(1)
-                # phototaxis loop
-                #thislux = LightSensor.calculateLux()
+                    break
+            else:
+                queueLock.release()
+                time.sleep(1)
+        # phototaxis loop
+    	#thislux = LightSensor.calculateLux()
+        #print(thislux)
+        while phototaxis:
+            queueLock.acquire()
+            if not workQueue.empty():
+                data = q.get()
+                queueLock.release()
+                if data == 'out':
+                    photo = False
+                    break
+                elif data == 'quit':
+                    going = False
+                    photo = False
+                    io.output(25, io.LOW)
+					break
+            else:
+                queueLock.release()
+                #print("new run" + str(thislux))
+                thislux = LightSensor.calculateLux()
+                newrun(np.array([0.2,0.5]),thislux)
                 #print(thislux)
-                while start1:
-                        queueLock.acquire()
-                        if not workQueue.empty():
-                                data = q.get()
-                                queueLock.release()
-                                if data == 'out':
-                                        photo = False
-                                        break
-                                elif data == 'quit':
-                                        going = False
-                                        photo = False
-                                        io.output(25, io.LOW)
+        # directing loop
+        while directing:
+        	queueLock.acquire()
+            if not workQueue.empty():
+                dir = q.get()
+                queueLock.release()
+                if dir == 'right':
+                    robot.right(100,0.5)
+                elif dir == 'left':
+                    robot.left(100, 0.5)
+                elif dir == 'go':
+                    break
+                elif dir == 'quit':
+                    going = False
+                    io.output(25, io.LOW)
 					break
-                        else:
-                        	queueLock.release()
-                        	#print("new run" + str(thislux))
-                        	thislux = LightSensor.calculateLux()
-                        	newrun(np.array([0.2,0.5]),thislux)
-                        	#print(thislux)
-                # directing loop
-                while start2:
-                        queueLock.acquire()
-                        if not workQueue.empty():
-                                data = q.get()
-                                queueLock.release()
-                                if data == 'right':
-                                        robot.right(100,0.5)
-                                elif data == 'left':
-                                        robot.left(100, 0.5)
-                                elif data == 'go':
-                                        break
-                                elif data == 'quit':
-                                        going = False
-                                        io.output(25, io.LOW)
-					break
-                        else:
-                                #print('should be controlled')
-                                queueLock.release()
-                                robot.forward(100, 0.5)
+            else:
+                #print('should be controlled')
+                queueLock.release()
+            	robot.forward(100, 0.5)
 
 def calcprob_run(lastlux):
 	a = 0.02
@@ -176,20 +176,20 @@ def newrun(rang, lastlux):
 	r = np.random.rand() 
 	if r>pt:
 		#life is good
-                newlux = thislux
+        newlux = thislux
 	else:
 		#life is bad, do sweeps
 		t = np.random.rand()
 		if t>0.5:
-    			#sweep left
-    			headsweep(robot.left, (0.4,0.6), thislux, 0)
-    		else:
-    			#sweep right
+    		#sweep left
+    		headsweep(robot.left, (0.4,0.6), thislux, 0)
+    	else:
+    		#sweep right
 			headsweep(robot.right, (0.4,0.6), thislux, 0)
 	#return newlux
 
 def headsweep(dir, rang, lastlux, count):
-        #print("head sweep")
+    #print("head sweep")
 	#initial sweep
 	dir(100, np.random.uniform(rang[0],rang[1]))
 	#take reading
@@ -200,9 +200,9 @@ def headsweep(dir, rang, lastlux, count):
 	if w>pa:
 		# doubles range after first reject
 		# to sweep back through center
-                if count == 0:
-                      rang = rang*2
-		print(count)
+        if count == 0:
+            rang = rang*2
+		#print(count)
 		count += 1
 		# initiate new run after four rejects
 		if count > 3:
@@ -214,9 +214,9 @@ def headsweep(dir, rang, lastlux, count):
 		else:
 			headsweep(robot.left, rang, lastlux, count)
 	else:
-                flashturn(dir)
+        flashturn(dir)
 		#print("gonna start new run " + str(thislux))
-                #return thislux
+        #return thislux
 
 def flashturn(dir):
 	if dir == robot.left:
@@ -236,7 +236,7 @@ queueLock = threading.Lock()
 workQueue = Queue.Queue(0)	
 threads = []
 			
-thread1 = myThread(1, "Thread-1", workQueue)
+thread1 = motionThread(1, "Motion", workQueue)
 thread1.start()
 threads.append(thread1)
 
