@@ -95,11 +95,9 @@ def process_input(threadName, q):
                 if data == 'go':
                     break
                 elif data == 'out':
-                    photo = False
                     break
                 elif data == 'quit':
                     going = False
-                    photo = False
 					io.output(25, io.LOW)
                     break
             else:
@@ -114,11 +112,9 @@ def process_input(threadName, q):
                 data = q.get()
                 queueLock.release()
                 if data == 'out':
-                    photo = False
                     break
                 elif data == 'quit':
                     going = False
-                    photo = False
                     io.output(25, io.LOW)
 					break
             else:
